@@ -16,7 +16,7 @@ const Page = () => {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xs flex-col items-center justify-center">
-      <h2 className="mb-6 border-b border-b-white text-2xl">Login</h2>
+      <h2 className="mb-6 text-2xl">Login</h2>
 
       <form className="w-full" onSubmit={onSignUp}>
         <div className="group relative z-0 mb-5 w-full">

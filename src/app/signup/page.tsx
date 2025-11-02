@@ -20,7 +20,7 @@ const Page = () => {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen max-w-xs mx-auto">
-      <h2 className="text-2xl border-b border-b-white mb-6">Sign Up</h2>
+      <h2 className="text-2xl mb-6">Sign Up</h2>
 
       <form className="w-full" onSubmit={onSignUp}>
         <div className="relative z-0 w-full mb-5 group">
