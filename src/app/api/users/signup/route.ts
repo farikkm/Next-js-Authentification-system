@@ -4,7 +4,7 @@ import User from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
 import { ApiError, ApiResponse } from "@/shared";
 
-async function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const reqBody = await request.json();
   const { email, password, username } = reqBody;
 
@@ -30,7 +30,7 @@ async function POST(request: NextRequest) {
   }
 
   const user = await User.findOne({ email });
-  if (!user) {
+  if (user) {
     return NextResponse.json(new ApiError("User already exists"), { status: 400 });
   }
 

@@ -2,8 +2,11 @@
 
 import axios from "axios";
 import Link from "next/link";
-import { useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthButton, AuthInput, AuthPasswordInput } from "@/components";
+import { HeroUIProvider, Spinner } from "@heroui/react";
+import toast, { Toaster } from "react-hot-toast";
 
 const Page = () => {
   const [user, setUser] = useState({
@@ -12,193 +15,96 @@ const Page = () => {
     username: "",
   });
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submitBtnDisabled, setSubmitBtnDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const onSignUp = async () => {};
+  useEffect(() => {
+    if (user.email && user.password && user.username) {
+      setSubmitBtnDisabled(false);
+    } else {
+      setSubmitBtnDisabled(true);
+    }
+  }, [user]);
+
+  const onSignUp = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!user.email && !user.password && !user.username) {
+      toast.error("All inputs are required")
+      return;
+    };
+
+    try {
+      setLoading(true)
+      const res = await axios.post("api/users/signup", user);
+      console.log(res);
+    } catch (error) {
+      toast.error("This didn't work.")
+      console.log("Signup failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen max-w-xs mx-auto">
-      <h2 className="text-2xl mb-6">Sign Up</h2>
+    <HeroUIProvider>
+      <div className="mx-auto flex min-h-screen max-w-xs flex-col items-center justify-center">
+        <h2 className="mb-6 text-2xl">Sign Up</h2>
 
-      <form className="w-full" onSubmit={onSignUp}>
-        <div className="relative z-0 w-full mb-5 group">
-          <input
+        <form className="w-full" onSubmit={onSignUp}>
+          <AuthInput
             type="email"
-            name="email"
             id="email"
             autoComplete="email"
             value={user.email}
-            onChange={(e) =>
-              setUser((prev) => ({ ...prev, email: e.target.value }))
-            }
-            placeholder=" "
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            onChange={(e) => setUser((prev) => ({ ...prev, email: e.target.value }))}
+            label="Email"
           />
-          <label
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            htmlFor="email"
-          >
-            Email
-          </label>
-        </div>
 
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
+          <AuthPasswordInput
             id="password"
-            autoComplete="new-password"
             value={user.password}
-            onChange={(e) =>
-              setUser((prev) => ({ ...prev, password: e.target.value }))
-            }
-            placeholder=" "
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            onChange={(e) => setUser((prev) => ({ ...prev, password: e.target.value }))}
+            onEyeClick={() => setShowPassword((prev) => !prev)}
+            label="Password"
+            showPassword={showPassword}
           />
-          <button
-            onClick={() => setShowPassword((prev) => !prev)}
-            type="button"
-            className="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
-          >
-            <svg
-              className="shrink-0 size-3.5"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path
-                className={`${showPassword ? "hidden" : "block"}`}
-                d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
-              ></path>
-              <path
-                className={`${showPassword ? "hidden" : "block"}`}
-                d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-              ></path>
-              <path
-                className={`${showPassword ? "hidden" : "block"}`}
-                d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
-              ></path>
-              <line
-                className={`${showPassword ? "hidden" : "block"}`}
-                x1="2"
-                x2="22"
-                y1="2"
-                y2="22"
-              ></line>
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-          <label
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            htmlFor="email"
-          >
-            Password
-          </label>
-        </div>
 
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            name="password-confirmation"
+          <AuthPasswordInput
             id="password-confirmation"
-            autoComplete="off"
             value={passwordConfirmation}
             onChange={(e) => setPasswordConfirmation(e.target.value)}
-            placeholder=" "
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            onEyeClick={() => setShowConfirmPassword((prev) => !prev)}
+            label="Confirm Password"
+            showPassword={showConfirmPassword}
           />
-          <button
-            onClick={() => setShowConfirmPassword((prev) => !prev)}
-            type="button"
-            className="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
-          >
-            <svg
-              className="shrink-0 size-3.5"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path
-                className={`${showConfirmPassword ? "hidden" : "block"}`}
-                d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
-              ></path>
-              <path
-                className={`${showConfirmPassword ? "hidden" : "block"}`}
-                d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-              ></path>
-              <path
-                className={`${showConfirmPassword ? "hidden" : "block"}`}
-                d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
-              ></path>
-              <line
-                className={`${showConfirmPassword ? "hidden" : "block"}`}
-                x1="2"
-                x2="22"
-                y1="2"
-                y2="22"
-              ></line>
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-          <label
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            htmlFor="email"
-          >
-            Confirm Password
-          </label>
-        </div>
 
-        <div className="relative z-0 w-full mb-5 group">
-          <input
+          <AuthInput
             type="text"
-            name="username"
-            autoComplete="off"
             id="username"
             value={user.username}
-            onChange={(e) =>
-              setUser((prev) => ({ ...prev, username: e.target.value }))
-            }
-            placeholder=" "
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))}
+            label="Username"
           />
-          <label
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            htmlFor="email"
-          >
-            Username
-          </label>
-        </div>
 
-        <button
-          type="submit"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full block mx-auto sm:w-fit px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Submit
-        </button>
+          <AuthButton
+            disabled={submitBtnDisabled || loading}
+            label={loading ? <Spinner className="h-1" color="white" variant="wave" /> : "Submit"}
+          />
 
-        <p className="mt-5 text-center text-sm dark:text-gray-200">
-          <span>Already have an account?</span>
-          <br />
-          <Link className="underline" href={"/login"}>
-            Go to Login Page
-          </Link>
-        </p>
-      </form>
-    </div>
+          <p className="mt-5 text-center text-sm dark:text-gray-200">
+            <span>Already have an account?</span>
+            <br />
+            <Link className="underline" href={"/login"}>
+              Go to Login Page
+            </Link>
+          </p>
+        </form>
+      </div>
+      <Toaster position="top-center" reverseOrder={false} />
+    </HeroUIProvider>
   );
 };
 
