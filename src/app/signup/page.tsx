@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user.email && user.password && user.username) {
+    if (user.email && user.password && passwordConfirmation && user.username) {
       setSubmitBtnDisabled(false);
     } else {
       setSubmitBtnDisabled(true);
@@ -31,17 +31,22 @@ const Page = () => {
   const onSignUp = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!user.email && !user.password && !user.username) {
-      toast.error("All inputs are required")
+    if (!user.email && !user.password && !passwordConfirmation && !user.username) {
+      toast.error("All inputs are required");
       return;
-    };
+    }
+
+    if (user.password !== passwordConfirmation) {
+      toast.error("Passwords don't match");
+      return
+    }
 
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await axios.post("api/users/signup", user);
-      console.log(res);
-    } catch (error) {
-      toast.error("This didn't work.")
+      toast.success(res.data.message);
+    } catch (error: any) {
+      toast.error(error.response.data.message ? error.response.data.message : "This didn't work.");
       console.log("Signup failed", error);
     } finally {
       setLoading(false);
