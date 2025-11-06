@@ -1,6 +1,6 @@
 "use client";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,8 @@ import { HeroUIProvider, Spinner } from "@heroui/react";
 import toast, { Toaster } from "react-hot-toast";
 
 const Page = () => {
+  const router = useRouter();
+
   const [user, setUser] = useState({
     email: "",
     password: "",
@@ -38,13 +40,17 @@ const Page = () => {
 
     if (user.password !== passwordConfirmation) {
       toast.error("Passwords don't match");
-      return
+      return;
     }
 
     try {
       setLoading(true);
       const res = await axios.post("api/users/signup", user);
       toast.success(res.data.message);
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 1000);
     } catch (error: any) {
       toast.error(error.response.data.message ? error.response.data.message : "This didn't work.");
       console.log("Signup failed", error);
