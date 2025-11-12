@@ -41,9 +41,7 @@ const Page = () => {
       const res = await axios.post("api/users/login", user);
       toast.success(res.data.message);
 
-      setTimeout(() => {
-        router.push("/profile");
-      }, 1000);
+      router.push("/profile");
     } catch (error: any) {
       toast.error(error.response.data.message ? error.response.data.message : "This didn't work.");
       console.log("Login failed", error);
