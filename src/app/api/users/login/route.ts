@@ -2,7 +2,7 @@ import { connect } from "@/configs/db";
 import bcrypt from "bcryptjs";
 import User from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
-import { ApiError, ApiResponse } from "@/shared";
+import { ApiError, ApiResponse, TokenDataType } from "@/shared";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(new ApiError("Invalid password"), { status: 400 });
     }
 
-    const tokenData = {
+    const tokenData: TokenDataType = {
       id: user._id,
       email: user.email,
       username: user.username,

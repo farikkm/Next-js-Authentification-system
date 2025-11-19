@@ -1,14 +1,16 @@
 "use client";
 
+import { UserDataType } from "@/shared";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const Page = () => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState<UserDataType | null>(null);
 
   const logout = async () => {
     try {
@@ -26,6 +28,27 @@ const Page = () => {
     }
   };
 
+  const getUserData = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axios.get("api/users/user");
+      setUserData(res.data.data);
+    } catch (error: any) {
+      toast.error(error.response.data.message ? error.response.data.message : "This didn't work.");
+      console.log("Logout failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+  useEffect(() => {
+    console.log(userData);
+  }, [userData]);
+
   return (
     <>
       <div className="flex h-screen flex-col items-center justify-center">
@@ -37,6 +60,14 @@ const Page = () => {
         >
           Logout
         </button>
+        {userData && (
+          <button
+            onClick={() => router.push(`/profile/${userData._id}`)}
+            className="mt-3 cursor-pointer rounded-2xl bg-blue-400 px-4 py-2 hover:bg-blue-500 disabled:opacity-70"
+          >
+            Go to Profile Page
+          </button>
+        )}
       </div>
       <Toaster position="top-center" reverseOrder={false} />
     </>
